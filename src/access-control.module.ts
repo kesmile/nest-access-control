@@ -46,6 +46,7 @@ export class AccessControlModule {
   }
 
   public static forRootAsync(options: {
+    imports: Array<Type<any>>,
     inject?: Array<Type<any> | string | symbol | Abstract<any> | Function>,
     useFactory: (...args: any) => RolesBuilder | Promise<RolesBuilder>,
   }): DynamicModule {
@@ -57,6 +58,7 @@ export class AccessControlModule {
     };
 
     return {
+      imports: options.imports,
       module: AccessControlModule,
       providers: [
         provider,
