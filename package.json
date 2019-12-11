@@ -2,7 +2,7 @@
   "name": "nest-access-control",
   "version": "2.0.1",
   "description": "Access Control Module For Nestjs Framework",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "jest --notify --config=jest.json",
     "test:watch": "jest --watch --config=jest.json",
