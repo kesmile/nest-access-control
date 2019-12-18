@@ -15,7 +15,7 @@ import { RolesService } from 'roles/roles.service';
         return new RolesBuilder(role);
       },
       inject: [RolesService],
-    }), 
+    }),
     RolesModule
   ],
   controllers: [AppController],

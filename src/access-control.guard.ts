@@ -1,6 +1,7 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IQueryInfo } from 'accesscontrol';
+import { IQueryInfo, AccessControl } from 'accesscontrol';
+import * as ac from 'accesscontrol';
 import { Role } from './role.interface';
 import { InjectRolesBuilder } from './decorators/inject-roles-builder.decorator';
 import { RolesBuilder } from './roles-builder.class';
@@ -24,18 +25,36 @@ export class ACGuard<User extends any = any> implements CanActivate {
   }
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
-    const roles = this.reflector.get<Role[]>('roles', context.getHandler());
-    if (!roles) {
+    const role = this.reflector.get<Role>('role', context.getHandler());
+    const request = context.switchToHttp().getRequest();
+    console.log('this')
+    if (!role) {
       return true;
     }
+    let isOwn = false;
 
     const userRoles = await this.getUserRoles(context);
-    const hasRoles = roles.every(role => {
-      const queryInfo: IQueryInfo = role;
-      queryInfo.role = userRoles;
-      const permission = this.roleBuilder.permission(queryInfo);
-      return permission.granted;
-    });
-    return hasRoles;
+
+    const permission = (action: string, owned: boolean, roles: IQueryInfo, resource: String): ac.Permission =>
+            (this.roleBuilder.can(roles))[action + (owned ? 'Own' : '')](resource);
+            
+    const queryInfo: IQueryInfo = role;
+    queryInfo.role = userRoles;
+    let perm = permission(role.action, false, queryInfo, role.resource);
+
+    if (perm.granted) {
+      console.log('set any', perm.granted)
+      request.isOwn = isOwn;
+      return true
+    }
+
+    perm = permission(role.action, true, queryInfo, role.resource);
+
+    if (perm.granted) {
+      isOwn = true;
+    }
+    request.isOwn = isOwn;
+    console.log('set own');
+    return perm.granted;
   }
 }

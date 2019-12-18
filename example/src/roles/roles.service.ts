@@ -8,9 +8,16 @@ export class RolesService {
       createAt: new Date(),
       role: 'admin',
       resource: 'video',
-      action: 'create:any',
+      action: 'read:own',
       attributes: '*'
     }
-    return Promise.resolve([role]);
+    const root: IRole = {
+      createAt: new Date(),
+      role: 'root',
+      resource: 'video',
+      action: 'create:own',
+      attributes: '*'
+    }
+    return Promise.resolve([role, root]);
   }
 }

@@ -32,30 +32,21 @@ let ACGuard = class ACGuard {
         return user.roles;
     }
     async canActivate(context) {
-        const role = this.reflector.get('role', context.getHandler());
-        const request = context.switchToHttp().getRequest();
-        console.log('this');
-        if (!role) {
+        const roles = this.reflector.get('roles', context.getHandler());
+        if (!roles) {
             return true;
         }
-        let isOwn = false;
         const userRoles = await this.getUserRoles(context);
         const permission = (action, owned, roles, resource) => (this.roleBuilder.can(roles))[action + (owned ? 'Own' : '')](resource);
-        const queryInfo = role;
-        queryInfo.role = userRoles;
-        let perm = permission(role.action, false, queryInfo, role.resource);
-        if (perm.granted) {
-            console.log('set any', perm.granted);
-            request.isOwn = isOwn;
-            return true;
-        }
-        perm = permission(role.action, true, queryInfo, role.resource);
-        if (perm.granted) {
-            isOwn = true;
-        }
-        request.isOwn = isOwn;
-        console.log('set own');
-        return perm.granted;
+        const hasRoles = roles.every(role => {
+            const queryInfo = role;
+            queryInfo.role = userRoles;
+            const perm = permission(role.action, false, queryInfo, role.resource);
+            //const permission = this.roleBuilder.permission(queryInfo);
+            console.log(perm.granted);
+            return perm.granted;
+        });
+        return hasRoles;
     }
 };
 ACGuard = __decorate([
@@ -65,3 +56,4 @@ ACGuard = __decorate([
         roles_builder_class_1.RolesBuilder])
 ], ACGuard);
 exports.ACGuard = ACGuard;
+//# sourceMappingURL=access-control.guard.js.map

@@ -6,5 +6,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./inject-roles-builder.decorator"));
 __export(require("./use-roles.decorator"));
 __export(require("./user-roles.decorators"));
-__export(require("./is-own.decorator"));
-__export(require("./use-role.decorator"));
+//# sourceMappingURL=index.js.map
